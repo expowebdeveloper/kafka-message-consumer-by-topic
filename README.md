@@ -14,11 +14,17 @@ The service uses a combination of asynchronous programming and threading to hand
 
 ## Simulated Long-Running Task
 
-The service simulates a long-running task in the `process_task` function by using `time.sleep(5)` to represent a CPU-intensive operation. This task demonstrates how the consumer can handle multiple messages concurrently without being blocked by a single long-running task.
+The service simulates a long-running task in the `_process_message_data` function by using `time.sleep(5)` to represent a CPU-intensive operation. This task demonstrates how the consumer can handle multiple messages concurrently without being blocked by a single long-running task.
 
 ## Python GIL Considerations
 
 Python's Global Interpreter Lock (GIL) affects true CPU-bound tasks when using threads. In this script, the use of `ThreadPoolExecutor` allows for better performance in handling long-running tasks concurrently, compared to traditional threading in CPU-bound scenarios.
+
+## Challenges Faced
+
+One of the main challenges encountered during development was ensuring that the asynchronous message processing did not block the main event loop. Initially, using `time.sleep()` in the processing function caused delays in consuming new messages. To overcome this, I utilized `ThreadPoolExecutor` to run the blocking code in a separate thread, allowing the event loop to remain responsive.
+
+Another challenge was handling message decoding errors gracefully. I implemented error handling in the `decode_kafka_message` function to ensure that any malformed messages do not crash the consumer.
 
 ## Requirements
 
@@ -38,7 +44,7 @@ The project includes the following files:
 └── README.md             # Project documentation
 ```
 
-## Setup Instructions
+## Setup and Testing Instructions
 
 ### Clone the repository
 
@@ -83,4 +89,6 @@ python main.py
 
 Make sure your Kafka server is running and the specified topic exists.
 
+### Verification
 
+To verify the output, you can check the messages in the `Scenario-Execute-Response` topic.
